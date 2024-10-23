@@ -1,0 +1,211 @@
+ex1
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+numeric_df=df.select_dtypes(include=['float','int64'])
+correlation_matrix=numeric_df.corr()
+plt.figure(figsize=(4,2))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', vmin=-1, vmax=1)
+plt.title('Correlation Matrix')
+plt.show()
+
+plt.figure(figsize=(8, 4))
+df_cleaned.boxplot()
+plt.title('Boxplots of Numerical Features')
+plt.xticks(rotation=90)
+plt.show()
+-------------------------------------------------------------------------------------------------------------------------------------
+ex2
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder
+
+data = {
+    'City': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'],
+    'Temperature': ['Hot', 'Cold', 'Warm', 'Hot', 'Cold'],
+    'Rank': [1, 2, 3, 4, 5]
+}
+
+df = pd.DataFrame(data)
+
+print("Original DataFrame:")
+print(df)
+
+# Label Encoding
+label_encoder = LabelEncoder()
+df['City_Label'] = label_encoder.fit_transform(df['City'])
+
+print("\nDataFrame with Label Encoding on 'City':")
+print(df)
+
+# One-Hot Encoding
+one_hot_encoder = OneHotEncoder(sparse_output=False)
+one_hot_encoded = one_hot_encoder.fit_transform(df[['City']])
+
+# Convert the result into a DataFrame
+one_hot_encoded_df = pd.DataFrame(one_hot_encoded, columns=one_hot_encoder.get_feature_names_out(['City']))
+
+# Concatenate with original DataFrame
+df_one_hot = pd.concat([df, one_hot_encoded_df], axis=1)
+
+print("\nDataFrame with One-Hot Encoding on 'City':")
+print(df_one_hot)
+
+#  Ordinal Encoding
+# Defining an order for 'Temperature'
+temperature_order = [['Cold', 'Warm', 'Hot']]
+
+ordinal_encoder = OrdinalEncoder(categories=temperature_order)
+df['Temperature_Ordinal'] = ordinal_encoder.fit_transform(df[['Temperature']])
+
+print("\nDataFrame with Ordinal Encoding on 'Temperature':")
+print(df)
+=------------------------------------------------------------------------------------------------------------------------
+ex3
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+
+# Load the IRIS dataset
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Build and train the decision tree using Gini Index
+clf_gini = DecisionTreeClassifier(criterion='gini', random_state=42)
+clf_gini.fit(X_train, y_train)
+
+# Build and train the decision tree using Entropy
+clf_entropy = DecisionTreeClassifier(criterion='entropy', random_state=42)
+clf_entropy.fit(X_train, y_train)
+# Visualize the decision tree using Gini Index
+plt.figure(figsize=(12, 8))
+plot_tree(clf_gini, filled=True, feature_names=iris.feature_names, class_names=iris.target_names)
+plt.title('Decision Tree using Gini Index')
+plt.show()
+
+# Visualize the decision tree using Entropy
+plt.figure(figsize=(12, 8))
+plot_tree(clf_entropy, filled=True, feature_names=iris.feature_names, class_names=iris.target_names)
+plt.title('Decision Tree using Entropy')
+plt.show()
+
+# Use the classifiers to predict a new data point (example: [5.1, 3.5, 1.4, 0.2] from the IRIS dataset)
+new_data_point = np.array([[5.1, 3.5, 1.4, 0.2]])
+
+# Predict using Gini
+pred_gini = clf_gini.predict(new_data_point)
+pred_proba_gini = clf_gini.predict_proba(new_data_point)
+
+# Predict using Entropy
+pred_entropy = clf_entropy.predict(new_data_point)
+pred_proba_entropy = clf_entropy.predict_proba(new_data_point)
+# Print the results
+print("Prediction using Gini Index:", iris.target_names[pred_gini])
+print("Prediction probabilities using Gini Index:", pred_proba_gini)
+
+print("Prediction using Entropy:", iris.target_names[pred_entropy])
+print("Prediction probabilities using Entropy:", pred_proba_entropy)
+-------------------------------------------------------------------------------------------------------------------------------------
+
+ex4
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Initialize the k-NN classifier with k=3
+knn = KNeighborsClassifier(n_neighbors=50)
+
+# Train the classifier
+knn.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = knn.predict(X_test)
+correct_predictions =0
+wrong_predictions=0
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.2f}')
+
+print("\nCorrect Predictions:")
+for i in range(len(y_test)):
+    if y_test[i] == y_pred[i]:
+        correct_predictions += 1
+        print(f"Sample {i}: True label = {iris.target_names[y_test[i]]}, Predicted label = {iris.target_names[y_pred[i]]}")
+
+print("\nWrong Predictions:")
+for i in range(len(y_test)):
+    if y_test[i] != y_pred[i]:
+        wrong_predictions += 1
+        print(f"Sample {i}: True label = {iris.target_names[y_test[i]]}, Predicted label = {iris.target_names[y_pred[i]]}")
+print(f"Attribute values: {X_test[i]}")
+
+print(f"\nTotal correct predictions: {correct_predictions}")
+print(f"Total wrong predictions: {wrong_predictions}")
+----------------------------------------------------------------------------------------------------------------------------------
+ex6
+import pandas as pd
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.preprocessing import OneHotEncoder
+
+# Load the 'insurance' dataset from seaborn
+insurance_data = pd.read_csv('insurance.csv')
+
+# Convert categorical data to numeric values
+# Convert 'sex' and 'smoker' to binary (0 or 1)
+insurance_data['sex'] = insurance_data['sex'].apply(lambda x: 1 if x == 'male' else 0)
+insurance_data['smoker'] = insurance_data['smoker'].apply(lambda x: 1 if x == 'yes' else 0)
+
+# One-hot encode the 'region' column
+insurance_data = pd.get_dummies(insurance_data, columns=['region'], drop_first=True)
+
+# Define the independent variables (features) and the target variable (charges)
+X = insurance_data.drop(columns='charges')  # All columns except 'charges'
+y = insurance_data['charges']  # Target variable (healthcare costs)
+
+# Split the dataset into training and testing sets (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Create a linear regression model
+model = LinearRegression()
+
+# Train the model on the training data
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model using Mean Absolute Error (MAE) and R-squared (R²)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f'Mean Absolute Error: {mae}')
+print(f'R-squared Score: {r2}')
+
+# Example prediction for a new patient
+# Example prediction for a new patient
+# Define the feature names
+feature_names = ['age', 'sex', 'bmi', 'children', 'smoker', 'region_northwest', 'region_southeast', 'region_southwest']
+
+# Create a DataFrame for the new patient data
+new_patient = pd.DataFrame([[50, 1, 26.7, 2, 1, 0, 0, 1]], columns=feature_names)
+
+# Make the prediction
+predicted_cost = model.predict(new_patient)
+print(f'Predicted Healthcare Cost for new patient: {predicted_cost[0]}')
